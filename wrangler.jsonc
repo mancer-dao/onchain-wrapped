@@ -8,7 +8,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "frosty-hill-9855",
+	"name": "onchain-wrapped",
 	"compatibility_date": "2025-10-08",
 	"main": "./workers/app.ts",
 	"vars": {
