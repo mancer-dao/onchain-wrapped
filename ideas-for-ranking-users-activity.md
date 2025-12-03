@@ -1,5 +1,6 @@
 ## neynar https://api.neynar.com/v2/farcaster/feed/trending/
 
+- Fetch trending casts or on the global feed or channels feeds. 7d time window available for channel feeds only.
 - quite cheap call 8 credits
 - max 7d history, wont work for yearly
 
