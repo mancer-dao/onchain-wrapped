@@ -8,7 +8,7 @@
     "ownerAddress": "0x780dE91F8D7Fb88AA8Bf30b0721e75706619Be8F"
   },
   "miniapp": {
-    "version": "0.1",
+    "version": "1",
     "name": "On-chain Wrapped",
     "homeUrl": "https://onchain-wrapped.magicdima.xyz/",
     "iconUrl": "https://onchain-wrapped.magicdima.xyz/icon.png",
