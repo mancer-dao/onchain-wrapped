@@ -1,0 +1,31 @@
+{
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  },
+  "baseBuilder": {
+    "ownerAddress": "0x780dE91F8D7Fb88AA8Bf30b0721e75706619Be8F"
+  },
+  "miniapp": {
+    "version": "0.1",
+    "name": "On-chain Wrapped",
+    "homeUrl": "https://onchain-wrapped.magicdima.xyz/",
+    "iconUrl": "https://onchain-wrapped.magicdima.xyz/icon.png",
+    "splashImageUrl": "https://onchain-wrapped.magicdima.xyz/2025-200x200.png",
+    "splashBackgroundColor": "#F7EFEF",
+    "subtitle": "Your 2025 year wrapped",
+    "description": "Your 2025 year on-chain activity wrapped.",
+    "screenshotUrls": [
+      "https://onchain-wrapped.magicdima.xyz/2025-200x200.png"
+    ],
+    "primaryCategory": "social",
+    "tags": ["year", "week", "wrapped"],
+    "heroImageUrl": "https://onchain-wrapped.magicdima.xyz/hero.png",
+    "tagline": "Your Year 2025 of on-chain activity Wrapped",
+    "ogTitle": "On-Chain Wrapped",
+    "ogDescription": "Your Year 2025 of on-chain activity Wrapped",
+    "ogImageUrl": "https://onchain-wrapped.magicdima.xyz/hero.png",
+    "noindex": true
+  }
+}
