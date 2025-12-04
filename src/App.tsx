@@ -1,4 +1,15 @@
-export function Welcome() {
+import { sdk } from '@farcaster/miniapp-sdk';
+import { useEffect } from 'react';
+
+export function App() {
+  return <Welcome />;
+}
+
+function Welcome() {
+  useEffect(() => {
+    sdk.actions.ready();
+  });
+
   return (
     <main className="min-h-screen bg-white p-6 flex flex-col items-center justify-center text-center">
       <div className="space-y-6 max-w-2xl">

@@ -17,6 +17,7 @@
   "dependencies": {
     "@farcaster/miniapp-sdk": "^0.2.1",
     "@neynar/nodejs-sdk": "^3.99.0",
+    "@vitejs/plugin-react-swc": "^4.2.2",
     "hono": "4.10.7",
     "isbot": "5.1.32",
     "react": "19.2.0",
@@ -25,7 +26,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.8",
-    "@react-router/dev": "7.9.6",
     "@tailwindcss/vite": "4.1.17",
     "@types/node": "24.10.1",
     "@types/react": "19.2.7",
@@ -39,12 +39,12 @@
   },
   "private": true,
   "scripts": {
-    "build": "react-router build",
+    "build": "vite build",
     "cf-typegen": "wrangler types",
     "deploy": "pnpm run build && wrangler deploy",
-    "dev": "concurrently --names react-router,cf-aoi -c blue,yellow 'react-router dev' 'wrangler dev'",
+    "dev": "concurrently --names vite,cf-aoi -c blue,yellow 'vite' 'wrangler dev'",
     "preview": "pnpm run build && vite preview",
-    "typecheck": "pnpm run cf-typegen && react-router typegen && tsc -b"
+    "typecheck": "pnpm run cf-typegen && tsc -b"
   },
   "type": "module"
 }

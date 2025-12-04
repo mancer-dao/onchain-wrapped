@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { createRequestHandler } from "react-router";
+// import { createRequestHandler } from "react-router";
 import { getClient } from "./services/neynar";
 
 type Bindings = {
@@ -22,16 +22,16 @@ app
       console.error({ context: "failed to fetch user", err });
       return c.json({ error: "internal server error" });
     }
-  })
-  .get("*", (c) => {
-    const requestHandler = createRequestHandler(
-      () => import("virtual:react-router/server-build"),
-      import.meta.env.MODE,
-    );
-
-    return requestHandler(c.req.raw, {
-      cloudflare: { env: c.env, ctx: c.executionCtx },
-    });
   });
+// .get("*", (c) => {
+//   const requestHandler = createRequestHandler(
+//     () => import("virtual:react-router/server-build"),
+//     import.meta.env.MODE,
+//   );
+//
+//   return requestHandler(c.req.raw, {
+//     cloudflare: { env: c.env, ctx: c.executionCtx },
+//   });
+// });
 
 export default app;
