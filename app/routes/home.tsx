@@ -1,4 +1,5 @@
 import type { Route } from './+types/home';
+import { sdk } from '@farcaster/miniapp-sdk';
 import { Welcome } from '../welcome/welcome';
 
 export function meta({}: Route.MetaArgs) {
@@ -13,5 +14,6 @@ export function loader() {
 }
 
 export default function Home() {
+  sdk.actions.ready();
   return <Welcome />;
 }
