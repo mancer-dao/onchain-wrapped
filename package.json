@@ -18,6 +18,7 @@
     "@farcaster/miniapp-sdk": "^0.2.1",
     "@neynar/nodejs-sdk": "^3.99.0",
     "@vitejs/plugin-react-swc": "^4.2.2",
+    "@supabase/supabase-js": "^2.86.0",
     "hono": "4.10.7",
     "isbot": "5.1.32",
     "react": "19.2.0",
@@ -35,16 +36,17 @@
     "typescript": "5.8.3",
     "vite": "^6.0.0",
     "vite-tsconfig-paths": "5.1.4",
-    "wrangler": "4.51.0"
+    "wrangler": "4.53.0"
   },
   "private": true,
   "scripts": {
     "build": "vite build",
     "cf-typegen": "wrangler types",
     "deploy": "pnpm run build && wrangler deploy",
-    "dev": "concurrently --names vite,cf-aoi -c blue,yellow 'vite' 'wrangler dev'",
+    "dev": "concurrently --names vite,wran -c blue,yellow 'vite' 'wrangler dev --test-scheduled'",
     "preview": "pnpm run build && vite preview",
-    "typecheck": "pnpm run cf-typegen && tsc -b"
+    "typecheck": "pnpm run cf-typegen && tsc -b",
+    "db:gettypes": "supabase gen types --project-id mtpwujvpaclpmhhyzmgj"
   },
   "type": "module"
 }

@@ -1,12 +1,9 @@
 import { Hono } from "hono";
 // import { createRequestHandler } from "react-router";
 import { getClient } from "./services/neynar";
+import { trendingFarcasterCasts } from "./jobs/trending-farcaster-casts";
 
-type Bindings = {
-  NEYNAR_API_KEY: string;
-};
-
-const app = new Hono<{ Bindings: Bindings }>();
+const app = new Hono<{ Bindings: Env }>();
 
 app
   .get("/health", (c) => {
@@ -34,4 +31,29 @@ app
 //   });
 // });
 
-export default app;
+export default {
+  fetch: app.fetch,
+
+  async scheduled(
+    _event: ScheduledController,
+    env: Env,
+    c: ExecutionContext,
+  ) {
+    try {
+      c.waitUntil(
+        trendingFarcasterCasts(env).catch((err) => {
+          console.error({
+            context: "trending-farcaster-casts job failed",
+            err,
+          });
+        }),
+      );
+      console.log("scheduled trigger done");
+    } catch (err) {
+      console.error({
+        context: "failed to run trending-farcaster-casts job",
+        err,
+      });
+    }
+  },
+};
