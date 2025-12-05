@@ -17,8 +17,8 @@
   "dependencies": {
     "@farcaster/miniapp-sdk": "^0.2.1",
     "@neynar/nodejs-sdk": "^3.99.0",
-    "@vitejs/plugin-react-swc": "^4.2.2",
     "@supabase/supabase-js": "^2.86.0",
+    "@vitejs/plugin-react-swc": "^4.2.2",
     "hono": "4.10.7",
     "isbot": "5.1.32",
     "react": "19.2.0",
@@ -32,6 +32,7 @@
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "concurrently": "^9.2.0",
+    "supabase": "^2.65.6",
     "tailwindcss": "4.1.17",
     "typescript": "5.8.3",
     "vite": "^6.0.0",
@@ -46,7 +47,7 @@
     "dev": "concurrently --names vite,wran -c blue,yellow 'vite' 'wrangler dev --test-scheduled'",
     "preview": "pnpm run build && vite preview",
     "typecheck": "pnpm run cf-typegen && tsc -b",
-    "db:gettypes": "supabase gen types --project-id mtpwujvpaclpmhhyzmgj"
+    "db:gentypes": "pnpm supabase gen types --project-id mtpwujvpaclpmhhyzmgj > workers/database.types.ts"
   },
   "type": "module"
 }

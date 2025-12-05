@@ -2,7 +2,7 @@
 
 Proof of Concept
 
-## implementaiton
+## implementation
 
 - add a trigger for a scheduled Cloudflare cron job
   - call Naynar API to fetch trending casts from the global feed for the previous week (can be scoped down to channels), need to drain paginated response

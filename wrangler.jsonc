@@ -60,6 +60,13 @@
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*", "/__scheduled", "!/api/docs/*"],
   },
+  "kv_namespaces": [
+    {
+      "binding": "USER_CACHE",
+      "id": "user_cache_namespace",
+      "preview_id": "user_cache_namespace"
+    }
+  ],
   /**
    * Service Bindings (communicate between multiple Workers)
    * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
