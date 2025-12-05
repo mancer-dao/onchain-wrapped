@@ -1,12 +1,10 @@
-import { getDbConnection } from "../services/supabase";
+import { NO_ERROR } from "../errors";
+import { withDbConnection } from "../services/supabase";
 
-export const trendingFarcasterCasts = async (env: {
-  SUPABASE_URL: string;
-  SUPABASE_SERVICE_KEY: string;
-}) => {
-  const db = getDbConnection(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY);
-  await db.from("genstore").insert({
+export const trendingFarcasterCasts = withDbConnection(async (c) => {
+  await c.db.from("genstore").insert({
     key: "trending-farcaster-casts:last-run",
     value: new Date().toISOString(),
   });
-};
+  return NO_ERROR;
+});

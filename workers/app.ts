@@ -41,7 +41,7 @@ export default {
   ) {
     try {
       c.waitUntil(
-        trendingFarcasterCasts(env).catch((err) => {
+        trendingFarcasterCasts({ env }).catch((err) => {
           console.error({
             context: "trending-farcaster-casts job failed",
             err,
