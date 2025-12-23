@@ -11,6 +11,7 @@ declare namespace Cloudflare {
 		SUPABASE_URL: string;
 		SUPABASE_SERVICE_KEY: string;
 		ASSETS: Fetcher;
+		GEMINI_API_KEY: string;
 	}
 }
 interface Env extends Cloudflare.Env {}

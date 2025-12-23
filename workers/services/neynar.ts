@@ -36,7 +36,7 @@ export class NeynarService {
         );
         throw err;
       }
-    }
+    },
   );
 
   fetchUser = withObserveHttpCall(
@@ -45,7 +45,7 @@ export class NeynarService {
       return this.client.fetchBulkUsers({
         fids: [fid],
       });
-    }
+    },
   );
 
   fetchUserBestFriends = withObserveHttpCall(
@@ -54,7 +54,7 @@ export class NeynarService {
       return this.client.getUserBestFriends({
         fid,
       });
-    }
+    },
   );
 
   fetchLastUserFollowers = withObserveHttpCall(
@@ -65,7 +65,7 @@ export class NeynarService {
         sortType: "desc_chron",
         limit: 20,
       });
-    }
+    },
   );
 
   fetchMostImportantUserFollowers = withObserveHttpCall(
@@ -76,7 +76,7 @@ export class NeynarService {
         sortType: "algorithmic",
         limit: 5,
       });
-    }
+    },
   );
 
   fetchUserLastFollowings = withObserveHttpCall(
@@ -87,7 +87,7 @@ export class NeynarService {
         limit: 20,
         sortType: "desc_chron",
       });
-    }
+    },
   );
 
   fetchUserPopularCasts = withObserveHttpCall(
@@ -96,7 +96,7 @@ export class NeynarService {
       return this.client.fetchPopularCastsByUser({
         fid,
       });
-    }
+    },
   );
 
   fetchUserLatestCasts = withObserveHttpCall(
@@ -106,7 +106,7 @@ export class NeynarService {
         fid,
         limit: 20,
       });
-    }
+    },
   );
 }
 
@@ -141,5 +141,13 @@ export function baseCastInfo(cast: Cast) {
     caste_timestamp: cast.timestamp,
     reactions: cast.reactions,
     replies: cast.replies,
-  }
+  };
+}
+
+export function userToPromptInput(user: User) {
+  return `name: ${user.display_name}, bio: ${user.profile.bio.text}`;
+}
+
+export function castToPromptInput(cast: Cast) {
+  return `user ${cast.author.display_name} wrote: ${cast.text} (replies: ${cast.replies}, likes: ${cast.reactions.likes_count}, reposts: ${cast.reactions.recasts_count})`;
 }
