@@ -23,7 +23,7 @@ export class AiService {
   async generatePredictions(params: GeneratePredictionParams): Promise<string[]> {
     const { userBio, recentFollowings, latestCasts, popularCasts, bestFriends } = params;
 
-    const prompt = `Based on this Farcaster user's data, predict what they will be doing in 2026. Provide a prediction as a list of specific, creative statements: 1. sentenc about reading of their data, 2. person archetype in one phrase, 3. sentence about their biggest achievement in next year, 4. a sentence with a warning about what to be wary of. 5. highlight their best moments with best friends on farcast. Be imaginative with predictions but realistic based on their current patterns.
+    const prompt = `Based on this Farcaster user's data, predict what they will be doing in 2026. Provide a prediction as a list of specific, creative statements: 1. sentence about reading of their data, 2. person archetype in one phrase from their bio and latest and popular casts, 3. sentence about their biggest achievement in next year, 4. a sentence with a warning about what to be wary of, 5. highlight their best moments with best friends on farcast. Be imaginative with predictions but realistic based on their current patterns.
 
 User Data:
 - bio: ${userBio}

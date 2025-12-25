@@ -36,9 +36,8 @@ app
     const latestCastsRes = await neynar.fetchUserLatestCasts(userFid);
     const popularCastsRes = await neynar.fetchUserPopularCasts(userFid);
     const mostImportantFollowersRes = await neynar.fetchMostImportantUserFollowers(userFid);
-
-    // FIXME
-    const userBio = "base builder #001 | DM jessexbt to get started building";
+    const userProfile = await neynar.fetchUserProfile(userFid);
+    const userBio = userProfile.profile.bio.text || "";
 
     const aiService = new AiServiceWithCache(c.env.GEMINI_API_KEY, c.env.USER_CACHE);
 

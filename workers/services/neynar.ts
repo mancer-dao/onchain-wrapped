@@ -176,6 +176,29 @@ export class NeynarService {
       cacheKey
     )(fid);
   }
+
+  fetchUserProfile(fid: number): Promise<User> {
+    const cacheKey = `fetchUserProfile_fid_${fid}`;
+
+    return withCache(
+      withObserveHttpCall(
+        "NeynarService.fetchUserProfile",
+        async (fid: number): Promise<User> => {
+          const response = await this.client.fetchBulkUsers({
+            fids: [fid],
+          });
+
+          if (!response.users || response.users.length === 0) {
+            throw new Error(`User with fid ${fid} not found`);
+          }
+
+          return response.users[0];
+        },
+      ),
+      this.kvStore,
+      cacheKey
+    )(fid);
+  }
 }
 
 export function baseUserInfo(
