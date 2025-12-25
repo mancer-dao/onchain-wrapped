@@ -1,6 +1,7 @@
 import { Configuration, NeynarAPIClient } from "@neynar/nodejs-sdk";
 import type { Cast, FeedResponse, User } from "@neynar/nodejs-sdk/build/api";
 import { withObserveHttpCall } from "./observability";
+import { withCache } from "./cache";
 
 export interface FetchTrendingCastsParams {
   limit?: number;
@@ -9,105 +10,172 @@ export interface FetchTrendingCastsParams {
 
 export class NeynarService {
   private client: NeynarAPIClient;
+  private kvStore: KVNamespace | null;
 
-  constructor(apiKey: string) {
+  constructor(apiKey: string, kvStore?: KVNamespace) {
     const config = new Configuration({
       apiKey,
     });
     this.client = new NeynarAPIClient(config);
+    this.kvStore = kvStore || null;
   }
 
-  fetchTrendingCasts = withObserveHttpCall(
-    "NeynarService.fetchTrendingCasts",
-    async (params: FetchTrendingCastsParams = {}): Promise<FeedResponse> => {
-      const { limit = 10, cursor } = params;
+  fetchTrendingCasts(params: FetchTrendingCastsParams = {}): Promise<FeedResponse> {
+    const { limit = 10, cursor } = params;
+    const cacheKey = `fetchTrendingCasts_limit_${limit}_cursor_${cursor || "none"}`;
 
-      try {
-        const response = await this.client.fetchTrendingFeed({
-          limit,
-          cursor,
-          timeWindow: "6h",
-        });
-        return response;
-      } catch (err) {
-        console.error(
-          "Error fetching trending casts with response from Neynar:",
-          err,
-        );
-        throw err;
-      }
-    },
-  );
+    return withCache(
+      withObserveHttpCall(
+        "NeynarService.fetchTrendingCasts",
+        async (params: FetchTrendingCastsParams = {}): Promise<FeedResponse> => {
+          const { limit = 10, cursor } = params;
 
-  fetchUser = withObserveHttpCall(
-    "NeynarService.fetchUser",
-    async (fid: number) => {
-      return this.client.fetchBulkUsers({
-        fids: [fid],
-      });
-    },
-  );
+          try {
+            const response = await this.client.fetchTrendingFeed({
+              limit,
+              cursor,
+              timeWindow: "6h",
+            });
+            return response;
+          } catch (err) {
+            console.error(
+              "Error fetching trending casts with response from Neynar:",
+              err,
+            );
+            throw err;
+          }
+        },
+      ),
+      this.kvStore,
+      cacheKey
+    )(params);
+  }
 
-  fetchUserBestFriends = withObserveHttpCall(
-    "NeynarService.fetchUserBestFriends",
-    async (fid: number) => {
-      return this.client.getUserBestFriends({
-        fid,
-      });
-    },
-  );
+  fetchUser(fid: number) {
+    const cacheKey = `fetchUser_fid_${fid}`;
 
-  fetchLastUserFollowers = withObserveHttpCall(
-    "NeynarService.fetchLastUserFollowers",
-    async (fid: number) => {
-      return this.client.fetchUserFollowers({
-        fid,
-        sortType: "desc_chron",
-        limit: 20,
-      });
-    },
-  );
+    return withCache(
+      withObserveHttpCall(
+        "NeynarService.fetchUser",
+        async (fid: number) => {
+          return this.client.fetchBulkUsers({
+            fids: [fid],
+          });
+        },
+      ),
+      this.kvStore,
+      cacheKey
+    )(fid);
+  }
 
-  fetchMostImportantUserFollowers = withObserveHttpCall(
-    "NeynarService.fetchMostImportantUserFollowers",
-    async (fid: number) => {
-      return this.client.fetchUserFollowers({
-        fid,
-        sortType: "algorithmic",
-        limit: 5,
-      });
-    },
-  );
+  fetchUserBestFriends(fid: number) {
+    const cacheKey = `fetchUserBestFriends_fid_${fid}`;
 
-  fetchUserLastFollowings = withObserveHttpCall(
-    "NeynarService.fetchUserLastFollowings",
-    async (fid: number) => {
-      return this.client.fetchUserFollowing({
-        fid,
-        limit: 20,
-        sortType: "desc_chron",
-      });
-    },
-  );
+    return withCache(
+      withObserveHttpCall(
+        "NeynarService.fetchUserBestFriends",
+        async (fid: number) => {
+          return this.client.getUserBestFriends({
+            fid,
+          });
+        },
+      ),
+      this.kvStore,
+      cacheKey
+    )(fid);
+  }
 
-  fetchUserPopularCasts = withObserveHttpCall(
-    "NeynarService.fetchUserPopularCasts",
-    async (fid: number) => {
-      return this.client.fetchPopularCastsByUser({
-        fid,
-      });
-    },
-  );
+  fetchLastUserFollowers(fid: number) {
+    const cacheKey = `fetchLastUserFollowers_fid_${fid}`;
 
-  fetchUserLatestCasts = withObserveHttpCall(
-    "NeynarService.fetchUserLatestCasts",
-    async (fid: number) => {
-      return this.client.fetchCastsForUser({
-        fid,
-        limit: 20,
-      });
-    },
-  );
+    return withCache(
+      withObserveHttpCall(
+        "NeynarService.fetchLastUserFollowers",
+        async (fid: number) => {
+          return this.client.fetchUserFollowers({
+            fid,
+            sortType: "desc_chron",
+            limit: 20,
+          });
+        },
+      ),
+      this.kvStore,
+      cacheKey
+    )(fid);
+  }
+
+  fetchMostImportantUserFollowers(fid: number) {
+    const cacheKey = `fetchMostImportantUserFollowers_fid_${fid}`;
+
+    return withCache(
+      withObserveHttpCall(
+        "NeynarService.fetchMostImportantUserFollowers",
+        async (fid: number) => {
+          return this.client.fetchUserFollowers({
+            fid,
+            sortType: "algorithmic",
+            limit: 5,
+          });
+        },
+      ),
+      this.kvStore,
+      cacheKey
+    )(fid);
+  }
+
+  fetchUserLastFollowings(fid: number) {
+    const cacheKey = `fetchUserLastFollowings_fid_${fid}`;
+
+    return withCache(
+      withObserveHttpCall(
+        "NeynarService.fetchUserLastFollowings",
+        async (fid: number) => {
+          return this.client.fetchUserFollowing({
+            fid,
+            limit: 20,
+            sortType: "desc_chron",
+          });
+        },
+      ),
+      this.kvStore,
+      cacheKey
+    )(fid);
+  }
+
+  fetchUserPopularCasts(fid: number) {
+    const cacheKey = `fetchUserPopularCasts_fid_${fid}`;
+
+    return withCache(
+      withObserveHttpCall(
+        "NeynarService.fetchUserPopularCasts",
+        async (fid: number) => {
+          return this.client.fetchPopularCastsByUser({
+            fid,
+          });
+        },
+      ),
+      this.kvStore,
+      cacheKey
+    )(fid);
+  }
+
+  fetchUserLatestCasts(fid: number) {
+    const cacheKey = `fetchUserLatestCasts_fid_${fid}`;
+
+    return withCache(
+      withObserveHttpCall(
+        "NeynarService.fetchUserLatestCasts",
+        async (fid: number) => {
+          return this.client.fetchCastsForUser({
+            fid,
+            limit: 20,
+          });
+        },
+      ),
+      this.kvStore,
+      cacheKey
+    )(fid);
+  }
 }
 
 export function baseUserInfo(

@@ -1,6 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
 import { Hono } from "hono";
-import { trendingFarcasterCasts } from "./jobs/trending-farcaster-casts";
 import { clearCache, getCachedUserData } from "./services/cache";
 import {
   baseCastInfo,
@@ -18,7 +17,7 @@ app
   })
   .get("/api/predict/:fid", async (c) => {
     const userFid = Number(c.req.param("fid"));
-    // const ignoreCache = c.req.query("ignore-cache") === "t";
+    const ignoreCache = c.req.query("ignore-cache") === "t";
 
     if (Number.isNaN(userFid) || userFid <= 0) {
       return c.json({ error: "invalid fid" });
@@ -28,16 +27,17 @@ app
       return c.json({ error: "no cached data found for the user" });
     }
 
-    const { 
-      mostImportantFollowersRes,
-      lastFollowingsRes,
-      latestCastsRes,
-      popularCastsRes,
-    } = JSON.parse(cachedQueryRes);
-    // const neynar = new NeynarService(c.env.NEYNAR_API_KEY);
-    // const lastFollowingsRes = await neynar.fetchUserLastFollowings(userFid);
-    // const latestCastsRes = await neynar.fetchUserLatestCasts(userFid);
-    // const popularCastsRes = await neynar.fetchUserPopularCasts(userFid);
+    // const { 
+    //   mostImportantFollowersRes,
+    //   lastFollowingsRes,
+    //   latestCastsRes,
+    //   popularCastsRes,
+    // } = JSON.parse(cachedQueryRes);
+    const neynar = new NeynarService(c.env.NEYNAR_API_KEY, ignoreCache ? undefined : c.env.USER_CACHE);
+    const lastFollowingsRes = await neynar.fetchUserLastFollowings(userFid);
+    const latestCastsRes = await neynar.fetchUserLatestCasts(userFid);
+    const popularCastsRes = await neynar.fetchUserPopularCasts(userFid);
+    const mostImportantFollowersRes = await neynar.fetchMostImportantUserFollowers(userFid);
     const userBio = "base builder #001 | DM jessexbt to get started building";
 
     const genAI = new GoogleGenAI({
@@ -45,16 +45,16 @@ app
       apiKey: c.env.GEMINI_API_KEY,
     });
 
-    const prompt = `Based on this Farcaster user's data, predict what they will be doing in 2026. Provide a prediction as a list of specific, creative statements: 1. sentenc about reading of their data, 2. person archetype in one phrase, 3. sentence about their biggest achievement in next year, 4. a sentence with a warning about what to be wary of. 5. highligh their best moments with best friends on farcast. Be imaginative with predictions but realistic based on their current patterns.
+    const prompt = `Based on this Farcaster user's data, predict what they will be doing in 2026. Provide a prediction as a list of specific, creative statements: 1. sentenc about reading of their data, 2. person archetype in one phrase, 3. sentence about their biggest achievement in next year, 4. a sentence with a warning about what to be wary of. 5. highlight their best moments with best friends on farcast. Be imaginative with predictions but realistic based on their current patterns.
 
 User Data:
 - bio: ${userBio}
 - Recent followings:\n - ${lastFollowingsRes.users.map((u) => userToPromptInput(u.user)).join(";\n - ")}\n
-- Latest casts:\n${latestCastsRes.casts.map(castToPromptInput).join(";\n ")}\n
-- Popular casts:\n${popularCastsRes.casts.map(castToPromptInput).join(";\n ")}\n
-- Best firends:\n - ${mostImportantFollowersRes.users.map((u) => userToPromptInput(u.user)).join(";\n - ")}
+- Latest casts:\n - ${latestCastsRes.casts.map(castToPromptInput).join(";\n ")}\n
+- Popular casts:\n -${popularCastsRes.casts.map(castToPromptInput).join(";\n ")}\n
+- Best friends:\n - ${mostImportantFollowersRes.users.map((u) => userToPromptInput(u.user)).join(";\n - ")}
 
-IMPORTANT: Output ONLY with a valid JSON output, each sentece-prediction separate string in an array, no markdown formating. Example: ["1st sentence", "2nd phrase", "3rd sentence", "4th sentence", "the last sentence"]`;
+IMPORTANT: Output ONLY with a valid JSON output, each sentence-prediction separate string in an array, no markdown formatting. Example: ["1st sentence", "2nd phrase", "3rd sentence", "4th sentence", "the last sentence"]`;
 
     let text: string | null = null;
     try {
@@ -103,7 +103,7 @@ IMPORTANT: Output ONLY with a valid JSON output, each sentece-prediction separat
       await clearCache(userFid.toString(), c.env.USER_CACHE);
     }
 
-    const neynar = new NeynarService(c.env.NEYNAR_API_KEY);
+    const neynar = new NeynarService(c.env.NEYNAR_API_KEY, c.env.USER_CACHE);
 
     const {
       mostImportantFollowersRes,
@@ -139,23 +139,4 @@ IMPORTANT: Output ONLY with a valid JSON output, each sentece-prediction separat
 
 export default {
   fetch: app.fetch,
-
-  async scheduled(_event: ScheduledController, env: Env, c: ExecutionContext) {
-    try {
-      c.waitUntil(
-        trendingFarcasterCasts({ env }).catch((err) => {
-          console.error({
-            context: "trending-farcaster-casts job failed",
-            err,
-          });
-        }),
-      );
-      console.log("scheduled trigger done");
-    } catch (err) {
-      console.error({
-        context: "failed to run trending-farcaster-casts job",
-        err,
-      });
-    }
-  },
 };
