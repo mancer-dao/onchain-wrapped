@@ -1,3 +1,9 @@
+## use on-chain optimism data
+
+e.g. using the graph API.
+
+Use The Graph to query the small portion of Farcaster data that is stored on-chain (Optimism), such as Farcaster IDs (FIDs), storage rent payments, and account recovery keys.
+
 ## neynar https://api.neynar.com/v2/farcaster/feed/trending/
 
 - Fetch trending casts or on the global feed or channels feeds. 7d time window available for channel feeds only.
@@ -848,6 +854,4 @@
 - partner with some accounts and/or use some popular accounts and track how other users interact popular/partner accounts display rankings in terms of interactions with popular/partner accounts
 - TODO see if neynar API allows to implement it
 - TODO see if we can get historic data for the whole year of 2025
-
-
 
