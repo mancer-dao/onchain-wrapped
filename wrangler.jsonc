@@ -72,6 +72,10 @@
     {
       "binding": "USER_CACHE",
       "id": "3b89613f789a4a3bbf516ac94b0d88d4",
+    },
+    {
+      "binding": "USAGE",
+      "id": "c86a0b9e9565478fa5c6c9c32cd9363a"
     }
   ],
   /**
