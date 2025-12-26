@@ -18,6 +18,10 @@ body {
   }
 }
 
+#root {
+  padding: 0rem 1rem;
+}
+
 h1,
 h2,
 h3 {
