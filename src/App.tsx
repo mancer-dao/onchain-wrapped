@@ -1,6 +1,22 @@
 import { sdk } from '@farcaster/miniapp-sdk';
 import { useEffect, useState } from 'react';
 
+function LoadingScreen() {
+  return (
+    <div className="fixed inset-0 flex flex-col items-center justify-center">
+      <div className="text-center">
+        <h2 className="text-3xl md:text-4xl text-gray-900 mb-4">
+          the Oracle is looking inside
+        </h2>
+
+        <p className="text-sm text-gray-500 mt-8 animate-pulse">
+          This may take up to 10 seconds...
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function App() {
   return <Welcome />;
 }
@@ -8,6 +24,7 @@ export function App() {
 function Welcome() {
   const [userFid, setUserFid] = useState<number | null>(99);
   const [isLoading, setIsLoading] = useState(false);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(false);
   const [predictions, setPredictions] = useState<any>(null);
 
   useEffect(() => {
@@ -31,20 +48,33 @@ function Welcome() {
     if (!userFid) return;
 
     setIsLoading(true);
+    setShowLoadingScreen(true);
+
     try {
-      const response = await fetch(`/api/predictions/${userFid}`);
-      if (response.ok) {
-        const data = await response.json();
-        setPredictions(data);
-      } else {
-        console.error('Failed to fetch predictions');
-      }
+      // Ensure minimum 10 seconds loading time
+      const apiCall = fetch(`/api/predictions/${userFid}`).then(async (response) => {
+        if (response.ok) {
+          const data = await response.json();
+          setPredictions(data);
+        } else {
+          console.error('Failed to fetch predictions');
+        }
+      });
+
+      const minimumDelay = new Promise(resolve => setTimeout(resolve, 10000));
+
+      await Promise.all([apiCall, minimumDelay]);
     } catch (error) {
       console.error('Error fetching predictions:', error);
     } finally {
       setIsLoading(false);
+      setShowLoadingScreen(false);
     }
   };
+
+  if (showLoadingScreen) {
+    return <LoadingScreen />;
+  }
 
   return (
     <main className="min-h-screen bg-white p-6 flex flex-col items-center justify-center text-center">

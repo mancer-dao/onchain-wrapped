@@ -23,3 +23,8 @@ h2,
 h3 {
   font-family: var(--font-sans-header);
 }
+
+button {
+  font-family: var(--font-sans-header);
+  cursor: pointer;
+}
