@@ -1,9 +1,10 @@
 import { sdk } from "@farcaster/miniapp-sdk";
 import { useEffect, useState } from "react";
 import { errors, type ErrorCode } from "./errors";
+import { apiClient } from "./api-client";
 
-function ErrorScreen({ error }: { error: ErrorCode }) {
-  if (error === errors.NO_ERROR) return null;
+function ErrorScreen({ code }: { code: ErrorCode }) {
+  if (code === errors.NO_ERROR) return null;
 
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center">
@@ -13,10 +14,13 @@ function ErrorScreen({ error }: { error: ErrorCode }) {
         </h2>
 
         <p className="text-gray-500 mt-8">
-          {error === errors.IMMATURE_ACCOUNT
+          {code === errors.IMMATURE_ACCOUNT
             ? "You path have just started and your future holds infinite posibilities. Now go!"
             : "There is some obstacle that is blocking me from discovering your future. Come back later."}
         </p>
+        {code !== errors.IMMATURE_ACCOUNT && (
+          <p className="text-sm text-gray-300 mt-24">error code {code}</p>
+        )}
       </div>
     </div>
   );
@@ -173,37 +177,34 @@ export function App() {
     setIsLoading(true);
 
     try {
-      const apiCall = fetch(`/api/predictions/${userFid}`)
-        .then((response) => {
-          if (!response.ok) {
-            console.error("Failed to fetch predictions");
-            setErrorCode(errors.UNKNOWN_ERROR);
-            return null;
-          }
-          return response.json();
-        })
-        .then((data) => {
-          if (data.code) {
-            setErrorCode(data.code);
-            return null;
-          }
-
-          setPredictions(data.predictions);
-          console.debug("prediction set:", data.predictions);
-        })
-        .catch((err) => {
-          console.error("Error fetching predictions:", err);
-          setErrorCode(errors.UNKNOWN_ERROR);
-          return null;
-        });
-
-      const minLoadingTime = new Promise((resolve) =>
+      const apiPromise = apiClient.api.predictions[":fid"].$post({
+        param: { fid: userFid.toString() },
+      });
+      const loadingPromise = new Promise<void>((resolve) =>
         setTimeout(resolve, 5_000),
       );
 
-      await Promise.all([apiCall, minLoadingTime]);
+      const [apiResponse] = await Promise.all([apiPromise, loadingPromise]);
+      const data = await apiResponse.json();
+
+      // Handle the response
+      if (data.code) {
+        setErrorCode(data.code);
+        return;
+      }
+
+      // if (data.error) {
+      //   console.error("API error:", data.error);
+      //   setErrorCode(errors.UNKNOWN_ERROR);
+      //   return;
+      // }
+
+      if (data.predictions) {
+        setPredictions(data.predictions);
+        console.debug("predictions set:", data.predictions);
+      }
     } catch (err) {
-      console.error("Error fetching predictions:", err);
+      console.error("Error in fetchPredictions:", err);
       setErrorCode(errors.UNKNOWN_ERROR);
     } finally {
       setIsLoading(false);
@@ -215,7 +216,7 @@ export function App() {
   }
 
   if (errorCode) {
-    return <ErrorScreen error={errorCode} />;
+    return <ErrorScreen code={errorCode} />;
   }
 
   if (predictions && predictions.length > 0) {
