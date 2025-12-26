@@ -4,28 +4,23 @@
   },
   "miniapp": {
     "version": "1",
-    "name": "On-chain Wrapped",
-    "homeUrl": "https://onchain-wrapped.magicdima.xyz/",
-    "iconUrl": "https://onchain-wrapped.magicdima.xyz/icon.png",
-    "splashImageUrl": "https://onchain-wrapped.magicdima.xyz/2025-200x200.png",
+    "name": "Farcaster Oracle",
+    "homeUrl": "https://farcaster-oracle.magicdima.xyz",
+    "iconUrl": "https://farcaster-oracle.magicdima.xyz/icon.png",
+    "splashImageUrl": "https://farcaster-oracle.magicdima.xyz/2025-200x200.png",
     "splashBackgroundColor": "#F7EFEF",
-    "subtitle": "Your 2025 year wrapped",
-    "description": "Your 2025 year on-chain activity wrapped.",
+    "subtitle": "Listen, the Oracle speaks!",
+    "description": "uncover your year 2025 prediction",
     "screenshotUrls": [
-      "https://onchain-wrapped.magicdima.xyz/2025-200x200.png"
+      "https://farcaster-oracle.magicdima.xyz/2025-200x200.png"
     ],
     "primaryCategory": "social",
-    "tags": ["year", "week", "wrapped"],
-    "heroImageUrl": "https://onchain-wrapped.magicdima.xyz/hero.png",
-    "tagline": "Your Year 2025 of on-chain activity Wrapped",
-    "ogTitle": "On-Chain Wrapped",
-    "ogDescription": "Your Year 2025 of on-chain activity Wrapped",
-    "ogImageUrl": "https://onchain-wrapped.magicdima.xyz/hero.png",
-    "noindex": true
-  },
-  "accountAssociation": {
-    "header": "eyJmaWQiOi0xLCJ0eXBlIjoiYXV0aCIsImtleSI6IjB4NzgwZEU5MUY4RDdGYjg4QUE4QmYzMGIwNzIxZTc1NzA2NjE5QmU4RiJ9",
-    "payload": "eyJkb21haW4iOiJvbmNoYWluLXdyYXBwZWQubWFnaWNkaW1hLnh5eiJ9",
-    "signature": "AAAAAAAAAAAAAAAAyhG94Fl3s2MRZwKIYr4qFzl2yhEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAqSCrVbLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAul7REO_bo9AFv8iC11NYrLu4WEIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbQ_-6NvAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEB6X55K1u3AFJ7jr6OCxpHi7Djxek9FLtwmCk-xfmTPqYPFS74lTC79mCyy-R_6xpEvcN9Xman8ge7xUhJrcoFeAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAADY1EvmkmTPHJj9ba7MLkskaxhNHQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAA-FIQshzFAwL0d7pWaG0gGdybZ63hWwqMROytRWUz0BEOrSzgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABtfxMMezMCV4flWFK2eT8jWgtW5a16WwGCtfAAkuImZ83wTlN1OOVZZeV508LpDwxiEmTd211lO3Tfv8-5_ziDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAl8ZgIay2xclZzG8RWZzuWvO8j9R0fus3XxDee9lRlVy8dAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACKeyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiNmNyTzU3UC1BNWIyYUc3ZTJvOXZTWFlaanJveE03TmpCMjBMZzVoQzFSZyIsIm9yaWdpbiI6Imh0dHBzOi8va2V5cy5jb2luYmFzZS5jb20iLCJjcm9zc09yaWdpbiI6ZmFsc2V9AAAAAAAAAAAAAAAAAAAAAAAAAAAAAGSSZJJkkmSSZJJkkmSSZJJkkmSSZJJkkmSSZJJkkmSS"
+    "tags": ["future", "year", "rpediction", "wrapped", "2026"],
+    "heroImageUrl": "https://farcaster-oracle.magicdima.xyz/hero.png",
+    "tagline": "uncover your year 2025 prediction",
+    "ogTitle": "the Farcaster Oracle speaks!",
+    "ogDescription": "uncover your year 2025 prediction",
+    "ogImageUrl": "https://fracaster-oracle.magicdima.xyz/hero.png",
+    "noindex": false
   }
 }
