@@ -3,6 +3,7 @@ export const errors = Object.freeze({
   UNKNOWN_ERROR: 1,
   IMMATURE_ACCOUNT: 2,
   INVALID_REQUEST: 3,
+  UNAUTHORIZED: 401,
 } as const);
 
 export type ErrorCode = typeof errors[keyof typeof errors];

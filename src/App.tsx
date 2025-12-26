@@ -148,38 +148,100 @@ function Slideshow({ predictions }: { predictions: string[] }) {
 
 export function App() {
   const [userFid, setUserFid] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [errorCode, setErrorCode] = useState<ErrorCode>(errors.NO_ERROR);
   const [predictions, setPredictions] = useState<string[]>([]);
 
+  // useEffect(() => {
+  //   // give time to show the app splash screen
+  //   setTimeout(() => {
+  //     const getUserContext = async () => {
+  //       console.debug("Getting user context...");
+  //       try {
+  //         const context = await sdk.context;
+  //         if (context?.user?.fid) {
+  //           setUserFid(context.user.fid);
+  //           console.debug("set user context:", context.user);
+  //         }
+  //       } catch (err) {
+  //         console.error("Failed to get user context:", err);
+  //       }
+  //     };
+  //
+  //     sdk.actions.ready().then(() => {
+  //       getUserContext();
+  //     });
+  //   }, 800);
+  // }, []);
   useEffect(() => {
-    sdk.actions.ready();
+    // const getUserContext = async () => {
+    //   console.debug("Getting user context...");
+    //   try {
+    //     const context = await sdk.context;
+    //     if (context?.user?.fid) {
+    //       setUserFid(context.user.fid);
+    //       console.debug("set user context:", context.user);
+    //     }
+    //   } catch (err) {
+    //     console.error("Failed to get user context:", err);
+    //   }
+    // };
 
-    const getUserContext = async () => {
-      console.debug("Getting user context...");
-      try {
-        const context = await sdk.context;
-        if (context?.user?.fid) {
-          setUserFid(context.user.fid);
-          console.debug("set user context:", context.user);
+    const loadingPromise = new Promise<void>((resolve) =>
+      setTimeout(resolve, 800),
+    );
+
+    console.debug("Getting user context...");
+    Promise.all([sdk.context, loadingPromise])
+      .then(([context]) => {
+        if (!context?.user?.fid) {
+          console.debug("unable to get user context");
+          setErrorCode(errors.UNAUTHORIZED);
+          return;
         }
-      } catch (err) {
+        setUserFid(context.user.fid);
+        return sdk.actions.ready();
+      })
+      .catch((err) => {
         console.error("Failed to get user context:", err);
-      }
-    };
-
-    getUserContext();
+        setErrorCode(errors.UNAUTHORIZED);
+      });
   }, []);
 
   const fetchPredictions = async () => {
     if (!userFid) return;
 
-    setIsLoading(true);
+    setIsFetching(true);
+
+    let token: string;
+    try {
+      const res = await sdk.quickAuth.getToken();
+      if (!res.token) {
+        console.debug("user is not authenticated in farcaster");
+        setErrorCode(errors.UNAUTHORIZED);
+        setIsFetching(false);
+        return;
+      }
+
+      token = res.token;
+    } catch (err) {
+      console.error("Failed to get farcaster token:", err);
+      setErrorCode(errors.UNAUTHORIZED);
+      setIsFetching(false);
+      return;
+    }
 
     try {
-      const apiPromise = apiClient.api.predictions[":fid"].$post({
-        param: { fid: userFid.toString() },
-      });
+      const apiPromise = apiClient.api.predictions.$post(
+        {
+          param: { fid: userFid.toString() },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
       const loadingPromise = new Promise<void>((resolve) =>
         setTimeout(resolve, 5_000),
       );
@@ -193,12 +255,6 @@ export function App() {
         return;
       }
 
-      // if (data.error) {
-      //   console.error("API error:", data.error);
-      //   setErrorCode(errors.UNKNOWN_ERROR);
-      //   return;
-      // }
-
       if (data.predictions) {
         setPredictions(data.predictions);
         console.debug("predictions set:", data.predictions);
@@ -207,11 +263,11 @@ export function App() {
       console.error("Error in fetchPredictions:", err);
       setErrorCode(errors.UNKNOWN_ERROR);
     } finally {
-      setIsLoading(false);
+      setIsFetching(false);
     }
   };
 
-  if (isLoading) {
+  if (isFetching) {
     return <LoadingScreen />;
   }
 
@@ -226,7 +282,7 @@ export function App() {
   return (
     <Welcome
       userFid={userFid}
-      isLoading={isLoading}
+      isLoading={isFetching}
       predictions={predictions}
       onFetchPredictions={fetchPredictions}
     />
@@ -243,6 +299,26 @@ function Welcome({
   predictions: any;
   onFetchPredictions: () => void;
 }) {
+  if (!userFid) {
+    return null;
+  }
+
+  if (userFid !== FID.macig_dima && userFid !== FID.watchthis) {
+    return (
+      <main className="min-h-screen flex flex-col items-center justify-center text-center">
+        <div className="max-w-2xl">
+          <h1 className="text-4xl md:text-5xl 2xl:text-6xl 4xl:text-7xl font-bold text-gray-900 mb-2">
+            Gated Access
+          </h1>
+
+          <h2 className="text-xl md:text-2xl 2xl:text-3xl 4xl:text-4xl text-gray-600">
+            You are not authorized to access this page
+          </h2>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center text-center">
       <div className="max-w-2xl">
@@ -347,3 +423,8 @@ const socialLinks = [
     ),
   },
 ];
+
+const FID = Object.freeze({
+  macig_dima: 1478450,
+  watchthis: 1138489,
+});

@@ -6,14 +6,45 @@ import {
   userToPromptInput,
 } from "./services/neynar";
 import * as errors from "./errors";
+import { createClient as createFarcasterAuthClient } from "@farcaster/quick-auth";
+import { createMiddleware } from "hono/factory";
+
+const authMiddleware = createMiddleware<{
+  Variables: {
+    user: { fid: number; issuer: string };
+  }
+}>(async (c, next) => {
+  const authHeader = c.req.header("Authorization");
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return c.json({ code: errors.UNAUTHORIZED }, 401);
+  }
+
+  const token = authHeader.slice(7);
+  try {
+    const auth = createFarcasterAuthClient();
+    const payload = await auth.verifyJwt({
+      token,
+      domain: "farcaster-oracle.magicdima.xyz",
+    });
+
+    const user = { fid: payload.sub, issuer: payload.iss };
+    console.debug({ context: "[auth middleware] user authenticated", user });
+    c.set("user", user);
+    await next();
+  } catch (err) {
+    console.error({ contex: "[auth middleware] error", error: err });
+    return c.json({ code: errors.UNAUTHORIZED }, 401);
+  }
+});
 
 const app = new Hono<{ Bindings: Env }>()
   .get("/api/health", (c) => {
     return c.json({ health: "live" });
   })
-  .post("/api/predictions/:fid", async (c) => {
+  .post("/api/predictions", authMiddleware, async (c) => {
     const now = Date.now();
-    const userFid = Number(c.req.param("fid"));
+    const userFid = c.var.user.fid
     const ignoreCache = c.req.query("ignore-cache") === "t";
 
     if (Number.isNaN(userFid) || userFid <= 0) {

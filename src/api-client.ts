@@ -1,5 +1,5 @@
 import { hc } from "hono/client";
-import type { ApiType } from "../workers/app";
+import type { ApiType } from "../workers/index";
 
 export const apiClient = hc<ApiType>("/");
 
