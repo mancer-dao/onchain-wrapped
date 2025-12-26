@@ -1,24 +1,40 @@
 import { sdk } from '@farcaster/miniapp-sdk';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export function App() {
   return <Welcome />;
 }
 
 function Welcome() {
+  const [userFid, setUserFid] = useState<number | null>(null);
+
   useEffect(() => {
     sdk.actions.ready();
-  });
+
+    // Get current user context from Farcaster
+    const getUserContext = async () => {
+      try {
+        const context = await sdk.context;
+        if (context?.user?.fid) {
+          setUserFid(context.user.fid);
+        }
+      } catch (error) {
+        console.error('Failed to get user context:', error);
+      }
+    };
+
+    getUserContext();
+  }, []);
 
   return (
     <main className="min-h-screen bg-white p-6 flex flex-col items-center justify-center text-center">
       <div className="space-y-6 max-w-2xl">
         <h1 className="text-4xl md:text-5xl 2xl:text-6xl 4xl:text-7xl font-bold text-gray-900 font-sans">
-          <span>On-Chain Wrapped</span>
+          <span>Farcaster Oracle</span>
         </h1>
 
         <p className="text-xl md:text-2xl 2xl:text-3xl 4xl:text-4xl text-gray-600">
-          Your decentralized year in review is coming soon
+          Your decentralized prediction for year 2026
         </p>
 
         {/* <div className="pt-6">
@@ -40,6 +56,10 @@ function Welcome() {
         </div> */}
 
         <p className="text-sm text-gray-500 pt-8">Follow us for updates</p>
+
+        <p className="text-sm text-gray-500 pt-8">
+          {userFid ? `Your FID: ${userFid}` : 'Loading user FID...'}
+        </p>
 
         <div className="flex justify-center space-x-6 pt-2">
           {socialLinks.map(({ href, icon, label }) => (
