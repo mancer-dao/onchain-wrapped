@@ -146,71 +146,104 @@ function Slideshow({ predictions }: { predictions: string[] }) {
   );
 }
 
+function GodAccess(props: { fetchPredictions: (fid: number) => void }) {
+  const [inputFid, setInputFid] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center text-center bg-gray-50">
+      <div className="max-w-md w-full">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">
+          God Access Mode
+        </h1>
+
+        <form onSubmit={() => {
+          const userFid = parseInt(inputFid.trim(), 10);
+          if (!userFid || Number.isNaN(userFid)) {
+            setErrorMessage("Please enter a valid FID number");
+            return;
+          }
+          setIsLoading(true);
+          props.fetchPredictions(userFid);
+        }} className="space-y-4">
+          <div>
+            <label htmlFor="fid-input" className="block text-sm font-medium text-gray-700 mb-2">
+              Enter FID to get predictions for:
+            </label>
+            <input
+              id="fid-input"
+              type="text"
+              value={inputFid}
+              onChange={(e) => setInputFid(e.target.value)}
+              placeholder="e.g. 12345"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              disabled={isLoading}
+            />
+          </div>
+
+          {errorMessage && (
+            <p className="text-red-600 text-sm">{errorMessage}</p>
+          )}
+
+          <button
+            type="submit"
+            disabled={isLoading || !inputFid.trim()}
+            className="w-full inline-flex items-center justify-center px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200"
+          >
+            {isLoading ? "Fetching..." : "Get Predictions"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export function App() {
-  const [userFid, setUserFid] = useState<number | null>(null);
+  const [currentUserFid, setUserFid] = useState<number | null>(null);
   const [isFetching, setIsFetching] = useState(false);
   const [errorCode, setErrorCode] = useState<ErrorCode>(errors.NO_ERROR);
   const [predictions, setPredictions] = useState<string[]>([]);
 
-  // useEffect(() => {
-  //   // give time to show the app splash screen
-  //   setTimeout(() => {
-  //     const getUserContext = async () => {
-  //       console.debug("Getting user context...");
-  //       try {
-  //         const context = await sdk.context;
-  //         if (context?.user?.fid) {
-  //           setUserFid(context.user.fid);
-  //           console.debug("set user context:", context.user);
-  //         }
-  //       } catch (err) {
-  //         console.error("Failed to get user context:", err);
-  //       }
-  //     };
-  //
-  //     sdk.actions.ready().then(() => {
-  //       getUserContext();
-  //     });
-  //   }, 800);
-  // }, []);
   useEffect(() => {
-    // const getUserContext = async () => {
-    //   console.debug("Getting user context...");
-    //   try {
-    //     const context = await sdk.context;
-    //     if (context?.user?.fid) {
-    //       setUserFid(context.user.fid);
-    //       console.debug("set user context:", context.user);
-    //     }
-    //   } catch (err) {
-    //     console.error("Failed to get user context:", err);
-    //   }
-    // };
-
-    const loadingPromise = new Promise<void>((resolve) =>
-      setTimeout(resolve, 800),
-    );
-
-    console.debug("Getting user context...");
-    Promise.all([sdk.context, loadingPromise])
-      .then(([context]) => {
-        if (!context?.user?.fid) {
-          console.debug("unable to get user context");
-          setErrorCode(errors.UNAUTHORIZED);
-          return;
+    // give time to show the app splash screen
+    setTimeout(() => {
+      const getUserContext = async () => {
+        console.debug("Getting user context...");
+        try {
+          const context = await sdk.context;
+          if (context?.user?.fid) {
+            setUserFid(context.user.fid);
+            console.debug("set user context:", context.user);
+          }
+        } catch (err) {
+          console.error("Failed to get user context:", err);
         }
-        setUserFid(context.user.fid);
-        return sdk.actions.ready();
-      })
-      .catch((err) => {
-        console.error("Failed to get user context:", err);
-        setErrorCode(errors.UNAUTHORIZED);
+      };
+
+      sdk.actions.ready().then(() => {
+        getUserContext();
       });
+    }, 800);
   }, []);
+  // useEffect(() => {
+  //   console.debug("Getting user context...");
+  //   sdk.context.then((context) => {
+  //       if (!context?.user?.fid) {
+  //         console.debug("unable to get user context");
+  //         setErrorCode(errors.UNAUTHORIZED);
+  //         return sdk.actions.ready();
+  //       }
+  //       setUserFid(context.user.fid);
+  //       return sdk.actions.ready();
+  //     })
+  //     .catch((err) => {
+  //       console.error("Failed to get user context:", err);
+  //       setErrorCode(errors.UNAUTHORIZED);
+  //     });
+  // }, []);
 
-  const fetchPredictions = async () => {
-    if (!userFid) return;
-
+  const fetchPredictions = async (fid?: number) => {
     setIsFetching(true);
 
     let token: string;
@@ -234,7 +267,7 @@ export function App() {
     try {
       const apiPromise = apiClient.api.predictions.$post(
         {
-          param: { fid: userFid.toString() },
+          json: { fid },
         },
         {
           headers: {
@@ -279,9 +312,16 @@ export function App() {
     return <Slideshow predictions={predictions} />;
   }
 
+  if (currentUserFid === FID.macig_dima || currentUserFid === FID.watchthis) {
+    return (
+      <GodAccess fetchPredictions={fetchPredictions} />
+    );
+  }
+
+
   return (
     <Welcome
-      userFid={userFid}
+      userFid={currentUserFid}
       isLoading={isFetching}
       predictions={predictions}
       onFetchPredictions={fetchPredictions}
@@ -301,22 +341,6 @@ function Welcome({
 }) {
   if (!userFid) {
     return null;
-  }
-
-  if (userFid !== FID.macig_dima && userFid !== FID.watchthis) {
-    return (
-      <main className="min-h-screen flex flex-col items-center justify-center text-center">
-        <div className="max-w-2xl">
-          <h1 className="text-4xl md:text-5xl 2xl:text-6xl 4xl:text-7xl font-bold text-gray-900 mb-2">
-            Gated Access
-          </h1>
-
-          <h2 className="text-xl md:text-2xl 2xl:text-3xl 4xl:text-4xl text-gray-600">
-            You are not authorized to access this page
-          </h2>
-        </div>
-      </main>
-    );
   }
 
   return (

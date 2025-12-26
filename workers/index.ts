@@ -12,7 +12,7 @@ import { createMiddleware } from "hono/factory";
 const authMiddleware = createMiddleware<{
   Variables: {
     user: { fid: number; issuer: string };
-  }
+  };
 }>(async (c, next) => {
   const authHeader = c.req.header("Authorization");
 
@@ -25,6 +25,7 @@ const authMiddleware = createMiddleware<{
     const auth = createFarcasterAuthClient();
     const payload = await auth.verifyJwt({
       token,
+      // must match current mini-app URL
       domain: "farcaster-oracle.magicdima.xyz",
     });
 
@@ -44,8 +45,18 @@ const app = new Hono<{ Bindings: Env }>()
   })
   .post("/api/predictions", authMiddleware, async (c) => {
     const now = Date.now();
-    const userFid = c.var.user.fid
-    const ignoreCache = c.req.query("ignore-cache") === "t";
+    let userFid = c.var.user.fid;
+    if (userFid === 1478450 || userFid === 1138489) {
+      const body = await c.req.json();
+      if (body.fid != null && (Number.isNaN(body.fid) || body.fid <= 0)) {
+        return c.json({ code: errors.INVALID_REQUEST }, 400);
+      } else if (body.fid) {
+        // override from req body, only available for admin/god mode
+        userFid = body.fid;
+      }
+    }
+    const ignoreCache =
+      c.req.query("ignore-cache") === "t" && c.var.user.fid === 1478450;
 
     if (Number.isNaN(userFid) || userFid <= 0) {
       return c.json({ code: errors.INVALID_REQUEST }, 400);
@@ -53,7 +64,7 @@ const app = new Hono<{ Bindings: Env }>()
 
     await c.env.USAGE.put(
       `predictions:${now}`,
-      JSON.stringify({ fid: userFid, timestamp: now }),
+      JSON.stringify({ fid: userFid, timestamp: now, user: c.var.user }),
     );
 
     // const cachedQueryRes = await c.env.USER_CACHE.get(`user_99`)
@@ -111,6 +122,7 @@ const app = new Hono<{ Bindings: Env }>()
         ),
       });
 
+      console.debug({ context: "predictions generated", predictions });
       return c.json({ predictions, code: errors.NO_ERROR });
     } catch (err) {
       console.error({ context: "failed to generate predictions", error: err });
