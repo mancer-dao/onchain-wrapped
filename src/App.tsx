@@ -1,5 +1,26 @@
 import { sdk } from "@farcaster/miniapp-sdk";
 import { useEffect, useState } from "react";
+import { errors, type ErrorCode } from "./errors";
+
+function ErrorScreen({ error }: { error: ErrorCode }) {
+  if (error === errors.NO_ERROR) return null;
+
+  return (
+    <div className="fixed inset-0 flex flex-col items-center justify-center">
+      <div className="text-center">
+        <h2 className="text-3xl md:text-4xl text-gray-900 mb-4">
+          the Oracle said
+        </h2>
+
+        <p className="text-gray-500 mt-8">
+          {error === errors.IMMATURE_ACCOUNT
+            ? "You path have just started and your future holds infinite posibilities. Now go!"
+            : "There is some obstacle that is blocking me from discovering your future. Come back later."}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 function LoadingScreen() {
   return (
@@ -122,18 +143,21 @@ function Slideshow({ predictions }: { predictions: string[] }) {
 }
 
 export function App() {
-  const [userFid, setUserFid] = useState<number | null>(99);
+  const [userFid, setUserFid] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorCode, setErrorCode] = useState<ErrorCode>(errors.NO_ERROR);
   const [predictions, setPredictions] = useState<string[]>([]);
 
   useEffect(() => {
     sdk.actions.ready();
 
     const getUserContext = async () => {
+      console.debug("Getting user context...");
       try {
         const context = await sdk.context;
         if (context?.user?.fid) {
           setUserFid(context.user.fid);
+          console.debug("set user context:", context.user);
         }
       } catch (err) {
         console.error("Failed to get user context:", err);
@@ -153,21 +177,34 @@ export function App() {
         .then((response) => {
           if (!response.ok) {
             console.error("Failed to fetch predictions");
+            setErrorCode(errors.UNKNOWN_ERROR);
+            return null;
           }
           return response.json();
         })
         .then((data) => {
+          if (data.code) {
+            setErrorCode(data.code);
+            return null;
+          }
+
           setPredictions(data.predictions);
           console.debug("prediction set:", data.predictions);
-        }).catch((err) => {
+        })
+        .catch((err) => {
           console.error("Error fetching predictions:", err);
+          setErrorCode(errors.UNKNOWN_ERROR);
+          return null;
         });
 
-      const minLoadingTime = new Promise((resolve) => setTimeout(resolve, 5_000));
+      const minLoadingTime = new Promise((resolve) =>
+        setTimeout(resolve, 5_000),
+      );
 
       await Promise.all([apiCall, minLoadingTime]);
     } catch (err) {
       console.error("Error fetching predictions:", err);
+      setErrorCode(errors.UNKNOWN_ERROR);
     } finally {
       setIsLoading(false);
     }
@@ -175,6 +212,10 @@ export function App() {
 
   if (isLoading) {
     return <LoadingScreen />;
+  }
+
+  if (errorCode) {
+    return <ErrorScreen error={errorCode} />;
   }
 
   if (predictions && predictions.length > 0) {

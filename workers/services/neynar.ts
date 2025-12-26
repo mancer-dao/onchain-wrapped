@@ -1,5 +1,5 @@
 import { Configuration, NeynarAPIClient } from "@neynar/nodejs-sdk";
-import type { Cast, FeedResponse, User } from "@neynar/nodejs-sdk/build/api";
+import type { Cast, FeedResponse, User, BulkCastsResponse } from "@neynar/nodejs-sdk/build/api";
 import { withObserveHttpCall } from "./observability";
 import { withCache } from "./cache";
 
@@ -20,14 +20,18 @@ export class NeynarService {
     this.kvStore = kvStore || null;
   }
 
-  fetchTrendingCasts(params: FetchTrendingCastsParams = {}): Promise<FeedResponse> {
+  fetchTrendingCasts(
+    params: FetchTrendingCastsParams = {},
+  ): Promise<FeedResponse> {
     const { limit = 10, cursor } = params;
     const cacheKey = `fetchTrendingCasts_limit_${limit}_cursor_${cursor || "none"}`;
 
     return withCache(
       withObserveHttpCall(
         "NeynarService.fetchTrendingCasts",
-        async (params: FetchTrendingCastsParams = {}): Promise<FeedResponse> => {
+        async (
+          params: FetchTrendingCastsParams = {},
+        ): Promise<FeedResponse> => {
           const { limit = 10, cursor } = params;
 
           try {
@@ -47,7 +51,7 @@ export class NeynarService {
         },
       ),
       this.kvStore,
-      cacheKey
+      cacheKey,
     )(params);
   }
 
@@ -55,16 +59,13 @@ export class NeynarService {
     const cacheKey = `fetchUser_fid_${fid}`;
 
     return withCache(
-      withObserveHttpCall(
-        "NeynarService.fetchUser",
-        async (fid: number) => {
-          return this.client.fetchBulkUsers({
-            fids: [fid],
-          });
-        },
-      ),
+      withObserveHttpCall("NeynarService.fetchUser", async (fid: number) => {
+        return this.client.fetchBulkUsers({
+          fids: [fid],
+        });
+      }),
       this.kvStore,
-      cacheKey
+      cacheKey,
     )(fid);
   }
 
@@ -81,7 +82,7 @@ export class NeynarService {
         },
       ),
       this.kvStore,
-      cacheKey
+      cacheKey,
     )(fid);
   }
 
@@ -100,7 +101,7 @@ export class NeynarService {
         },
       ),
       this.kvStore,
-      cacheKey
+      cacheKey,
     )(fid);
   }
 
@@ -119,7 +120,7 @@ export class NeynarService {
         },
       ),
       this.kvStore,
-      cacheKey
+      cacheKey,
     )(fid);
   }
 
@@ -138,24 +139,33 @@ export class NeynarService {
         },
       ),
       this.kvStore,
-      cacheKey
+      cacheKey,
     )(fid);
   }
 
-  fetchUserPopularCasts(fid: number) {
+  fetchUserPopularCasts(fid: number): Promise<BulkCastsResponse> {
     const cacheKey = `fetchUserPopularCasts_fid_${fid}`;
 
     return withCache(
       withObserveHttpCall(
         "NeynarService.fetchUserPopularCasts",
         async (fid: number) => {
-          return this.client.fetchPopularCastsByUser({
-            fid,
-          });
+          return this.client
+            .fetchPopularCastsByUser({
+              fid,
+            })
+            .catch((err) => {
+              console.error({
+                context:
+                  "Error fetching popular casts with response from Neynar:",
+                error: err,
+              });
+              return { casts: [] };
+            });
         },
       ),
       this.kvStore,
-      cacheKey
+      cacheKey,
     )(fid);
   }
 
@@ -173,7 +183,7 @@ export class NeynarService {
         },
       ),
       this.kvStore,
-      cacheKey
+      cacheKey,
     )(fid);
   }
 
@@ -196,7 +206,7 @@ export class NeynarService {
         },
       ),
       this.kvStore,
-      cacheKey
+      cacheKey,
     )(fid);
   }
 }

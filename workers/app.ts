@@ -5,6 +5,7 @@ import {
   NeynarService,
   userToPromptInput,
 } from "./services/neynar";
+import * as errors from "./errors";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -38,6 +39,10 @@ app
     const mostImportantFollowersRes = await neynar.fetchMostImportantUserFollowers(userFid);
     const userProfile = await neynar.fetchUserProfile(userFid);
     const userBio = userProfile.profile.bio.text || "";
+
+    if (!popularCastsRes.casts.length) {
+      return c.json({ predictions: [], code: errors.IMMATURE_ACCOUNT });
+    }
 
     const aiService = new AiServiceWithCache(c.env.GEMINI_API_KEY, c.env.USER_CACHE);
 
