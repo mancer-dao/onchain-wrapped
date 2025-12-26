@@ -1,5 +1,5 @@
-import { sdk } from '@farcaster/miniapp-sdk';
-import { useEffect, useState } from 'react';
+import { sdk } from "@farcaster/miniapp-sdk";
+import { useEffect, useState } from "react";
 
 function LoadingScreen() {
   return (
@@ -17,15 +17,114 @@ function LoadingScreen() {
   );
 }
 
-export function App() {
-  return <Welcome />;
+function Slideshow({ predictions }: { predictions: string[] }) {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % predictions.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide(
+      (prev) => (prev - 1 + predictions.length) % predictions.length,
+    );
+  };
+
+  const currentPrediction = predictions[currentSlide];
+
+  return (
+    <div className="fixed inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex flex-col">
+      {/* Header */}
+      <div className="flex justify-between items-center p-6 text-white">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+            <span className="text-purple-900 font-bold text-sm">O</span>
+          </div>
+          <span className="font-semibold">Farcaster Oracle</span>
+        </div>
+        <div className="text-sm opacity-75">
+          {currentSlide + 1} of {predictions.length}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center px-6">
+        <div className="max-w-4xl w-full text-center text-white">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 mb-8">
+            <p className="text-lg md:text-xl leading-relaxed">
+              {currentPrediction}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div className="flex justify-between items-center p-6">
+        <button
+          type="button"
+          onClick={prevSlide}
+          className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-full transition-colors duration-200 flex items-center space-x-2"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          <span>Previous</span>
+        </button>
+
+        <div className="flex space-x-2">
+          {Array(predictions.length)
+            .fill(0)
+            .map((_, index) => (
+              <button
+                type="button"
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-3 h-3 rounded-full transition-colors duration-200 ${
+                  index === currentSlide ? "bg-white" : "bg-white/40"
+                }`}
+              />
+            ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={nextSlide}
+          className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-full transition-colors duration-200 flex items-center space-x-2"
+        >
+          <span>Next</span>
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
 }
 
-function Welcome() {
+export function App() {
   const [userFid, setUserFid] = useState<number | null>(99);
   const [isLoading, setIsLoading] = useState(false);
-  const [showLoadingScreen, setShowLoadingScreen] = useState(false);
-  const [predictions, setPredictions] = useState<any>(null);
+  const [predictions, setPredictions] = useState<string[]>([]);
 
   useEffect(() => {
     sdk.actions.ready();
@@ -37,7 +136,7 @@ function Welcome() {
           setUserFid(context.user.fid);
         }
       } catch (err) {
-        console.error('Failed to get user context:', err);
+        console.error("Failed to get user context:", err);
       }
     };
 
@@ -48,34 +147,60 @@ function Welcome() {
     if (!userFid) return;
 
     setIsLoading(true);
-    setShowLoadingScreen(true);
 
     try {
-      // Ensure minimum 10 seconds loading time
-      const apiCall = fetch(`/api/predictions/${userFid}`).then(async (response) => {
-        if (response.ok) {
-          const data = await response.json();
-          setPredictions(data);
-        } else {
-          console.error('Failed to fetch predictions');
-        }
-      });
+      const apiCall = fetch(`/api/predictions/${userFid}`)
+        .then((response) => {
+          if (!response.ok) {
+            console.error("Failed to fetch predictions");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          setPredictions(data.predictions);
+          console.debug("prediction set:", data.predictions);
+        }).catch((err) => {
+          console.error("Error fetching predictions:", err);
+        });
 
-      const minimumDelay = new Promise(resolve => setTimeout(resolve, 10000));
+      const minLoadingTime = new Promise((resolve) => setTimeout(resolve, 5_000));
 
-      await Promise.all([apiCall, minimumDelay]);
-    } catch (error) {
-      console.error('Error fetching predictions:', error);
+      await Promise.all([apiCall, minLoadingTime]);
+    } catch (err) {
+      console.error("Error fetching predictions:", err);
     } finally {
       setIsLoading(false);
-      setShowLoadingScreen(false);
     }
   };
 
-  if (showLoadingScreen) {
+  if (isLoading) {
     return <LoadingScreen />;
   }
 
+  if (predictions && predictions.length > 0) {
+    return <Slideshow predictions={predictions} />;
+  }
+
+  return (
+    <Welcome
+      userFid={userFid}
+      isLoading={isLoading}
+      predictions={predictions}
+      onFetchPredictions={fetchPredictions}
+    />
+  );
+}
+
+function Welcome({
+  userFid,
+  isLoading,
+  onFetchPredictions,
+}: {
+  userFid: number | null;
+  isLoading: boolean;
+  predictions: any;
+  onFetchPredictions: () => void;
+}) {
   return (
     <main className="min-h-screen bg-white p-6 flex flex-col items-center justify-center text-center">
       <div className="max-w-2xl">
@@ -89,11 +214,12 @@ function Welcome() {
 
         <div className="pt-6">
           <button
-            onClick={fetchPredictions}
+            type="button"
+            onClick={onFetchPredictions}
             disabled={!userFid || isLoading}
             className="inline-flex items-center px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-full transition-colors duration-200 text-lg"
           >
-            {isLoading ? 'Loading Predictions...' : 'listen to my prediction'}
+            {isLoading ? "Loading Predictions..." : "listen to my prediction"}
             {!isLoading && (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -112,7 +238,7 @@ function Welcome() {
         </div>
 
         <p className="text-sm text-gray-500 pt-8">
-          {userFid ? `Your FID: ${userFid}` : 'Loading user FID...'}
+          {userFid ? `Your FID: ${userFid}` : "Loading user FID..."}
         </p>
 
         <p className="text-sm text-gray-500 pt-8 mt-4">Follow us for updates</p>
