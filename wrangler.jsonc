@@ -33,6 +33,7 @@
   },
   "routes": [
     {
+      "zone_name": "magicdima.xyz",
       "pattern": "farcaster-oracle.magicdima.xyz",
       "custom_domain": true,
     },
