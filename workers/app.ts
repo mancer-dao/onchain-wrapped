@@ -12,7 +12,7 @@ app
   .get("/api/health", (c) => {
     return c.json({ health: "live" });
   })
-  .get("/api/predict/:fid", async (c) => {
+  .get("/api/predictions/:fid", async (c) => {
     const userFid = Number(c.req.param("fid"));
     const ignoreCache = c.req.query("ignore-cache") === "t";
 

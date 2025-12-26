@@ -6,7 +6,9 @@ export function App() {
 }
 
 function Welcome() {
-  const [userFid, setUserFid] = useState<number | null>(null);
+  const [userFid, setUserFid] = useState<number | null>(99);
+  const [isLoading, setIsLoading] = useState(false);
+  const [predictions, setPredictions] = useState<any>(null);
 
   useEffect(() => {
     sdk.actions.ready();
@@ -25,6 +27,25 @@ function Welcome() {
     getUserContext();
   }, []);
 
+  const fetchPredictions = async () => {
+    if (!userFid) return;
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/predictions/${userFid}`);
+      if (response.ok) {
+        const data = await response.json();
+        setPredictions(data);
+      } else {
+        console.error('Failed to fetch predictions');
+      }
+    } catch (error) {
+      console.error('Error fetching predictions:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-white p-6 flex flex-col items-center justify-center text-center">
       <div className="max-w-2xl">
@@ -36,23 +57,29 @@ function Welcome() {
           Your decentralized prediction for year 2026
         </h2>
 
-        {/* <div className="pt-6">
-          <button className="inline-flex items-center px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full transition-colors duration-200 text-lg">
-            Get Notified
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 ml-2"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
+        <div className="pt-6">
+          <button
+            onClick={fetchPredictions}
+            disabled={!userFid || isLoading}
+            className="inline-flex items-center px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-full transition-colors duration-200 text-lg"
+          >
+            {isLoading ? 'Loading Predictions...' : 'listen to my prediction'}
+            {!isLoading && (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 ml-2"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
           </button>
-        </div> */}
+        </div>
 
         <p className="text-sm text-gray-500 pt-8">
           {userFid ? `Your FID: ${userFid}` : 'Loading user FID...'}
