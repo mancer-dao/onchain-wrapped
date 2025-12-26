@@ -11,15 +11,14 @@ function Welcome() {
   useEffect(() => {
     sdk.actions.ready();
 
-    // Get current user context from Farcaster
     const getUserContext = async () => {
       try {
         const context = await sdk.context;
         if (context?.user?.fid) {
           setUserFid(context.user.fid);
         }
-      } catch (error) {
-        console.error('Failed to get user context:', error);
+      } catch (err) {
+        console.error('Failed to get user context:', err);
       }
     };
 
@@ -28,14 +27,14 @@ function Welcome() {
 
   return (
     <main className="min-h-screen bg-white p-6 flex flex-col items-center justify-center text-center">
-      <div className="space-y-6 max-w-2xl">
-        <h1 className="text-4xl md:text-5xl 2xl:text-6xl 4xl:text-7xl font-bold text-gray-900 font-sans">
-          <span>Farcaster Oracle</span>
+      <div className="max-w-2xl">
+        <h1 className="text-4xl md:text-5xl 2xl:text-6xl 4xl:text-7xl font-bold text-gray-900 mb-2">
+          Farcaster Oracle
         </h1>
 
-        <p className="text-xl md:text-2xl 2xl:text-3xl 4xl:text-4xl text-gray-600">
+        <h2 className="text-xl md:text-2xl 2xl:text-3xl 4xl:text-4xl text-gray-600">
           Your decentralized prediction for year 2026
-        </p>
+        </h2>
 
         {/* <div className="pt-6">
           <button className="inline-flex items-center px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full transition-colors duration-200 text-lg">
@@ -55,11 +54,11 @@ function Welcome() {
           </button>
         </div> */}
 
-        <p className="text-sm text-gray-500 pt-8">Follow us for updates</p>
-
         <p className="text-sm text-gray-500 pt-8">
           {userFid ? `Your FID: ${userFid}` : 'Loading user FID...'}
         </p>
+
+        <p className="text-sm text-gray-500 pt-8 mt-4">Follow us for updates</p>
 
         <div className="flex justify-center space-x-6 pt-2">
           {socialLinks.map(({ href, icon, label }) => (
