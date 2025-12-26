@@ -7,6 +7,12 @@ export default defineConfig({
   clearScreen: false,
   plugins: [tailwindcss(), react(), tsconfigPaths()],
   server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+    },
     allowedHosts: [
       "farcaster-oracle-tunnel.magicdima.xyz",
       "localhost-5173.magicdima.xyz",
