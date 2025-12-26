@@ -7,12 +7,12 @@
     "name": "Farcaster Oracle",
     "homeUrl": "https://farcaster-oracle.magicdima.xyz",
     "iconUrl": "https://farcaster-oracle.magicdima.xyz/icon.png",
-    "splashImageUrl": "https://farcaster-oracle.magicdima.xyz/2025-200x200.png",
-    "splashBackgroundColor": "#F7EFEF",
+    "splashImageUrl": "https://farcaster-oracle.magicdima.xyz/splash-200x200.png",
+    "splashBackgroundColor": "#eef0f3",
     "subtitle": "Listen, the Oracle speaks!",
     "description": "uncover your year 2025 prediction",
     "screenshotUrls": [
-      "https://farcaster-oracle.magicdima.xyz/2025-200x200.png"
+      "https://farcaster-oracle.magicdima.xyz/splash-200x200.png"
     ],
     "primaryCategory": "social",
     "tags": ["future", "year", "rpediction", "wrapped", "2026"],

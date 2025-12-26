@@ -244,7 +244,7 @@ function Welcome({
   onFetchPredictions: () => void;
 }) {
   return (
-    <main className="min-h-screen bg-white flex flex-col items-center justify-center text-center">
+    <main className="min-h-screen flex flex-col items-center justify-center text-center">
       <div className="max-w-2xl">
         <h1 className="text-4xl md:text-5xl 2xl:text-6xl 4xl:text-7xl font-bold text-gray-900 mb-2">
           Farcaster Oracle
